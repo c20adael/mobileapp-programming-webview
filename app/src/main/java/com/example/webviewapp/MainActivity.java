@@ -21,13 +21,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void showExternalWebPage(){
         // TODO: Add your code for showing external web page here
-        WebView myWebView = findViewById(R.id.my_webview);
+
         myWebView.loadUrl("https://www.his.se");
     }
 
     public void showInternalWebPage(){
         // TODO: Add your code for showing internal web page here
-        WebView myWebView = findViewById(R.id.my_webview);
+
         myWebView.loadUrl("file:///android_asset/webPages/test.html");
     }
 
@@ -38,8 +38,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        WebView myWebView = findViewById(R.id.my_webview);
-        myWebView.setWebViewClient(new WebViewClient());
+        myWebView = findViewById(R.id.my_webview);
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 

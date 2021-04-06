@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+
+    <title>Framed! by AZE</title>
+
+    <style>
+        #printout {
+            font-size: 50vw;
+
+        }
+
+        .cardmargin {
+            margin-top: 15px;
+        }
+        .page{
+
+            min-height:100vh
+        }
+
+        .swipe-page {
+            position: absolute;
+            left: 0%;
+            width: 100%;
+            height: 100%;
+            z-index: 200;
+            opacity: 0;
+
+        }
+
+        #swipe-page1 {
+            opacity: 1;
+            z-index: 300;
+        }
+
+        #testswipe {
+            display: relative;
+        }
+
+        .Primary-color {
+            background-color: #fd7e14;
+        }
+
+        .Secondary-color {
+            background-color: #fd9843;
+        }
+
+        .Alt-color {
+            background-color: #ca6510;
+        }
+
+        .page-background-color {
+            background-color: #212529;
+        }
+
+        .Header-text {
+            color: #fd7e14;
+            margin-bottom: 0px;
+        }
+
+        .Nav-Margin-Top {
+            margin-top: 5px;
+        }
+        .carousel-size{
+            height: 300px;
+            width: 500px;
+        }
+        .botton-offset{
+            bottom: -15px;
+        }
+        .carousel-caption{
+            top:200px;
+        }
+
+
+
+        @keyframes inleft {
+            0% {
+                left: -100%;
+                opacity: 0.5;
+            }
+
+            100% {
+                left: 0%;
+                opacity: 1;
+            }
+        }
+
+        @keyframes inright {
+            0% {
+                left: 100%;
+                opacity: 0.5;
+            }
+
+            100% {
+                left: 0%;
+                opacity: 1;
+            }
+        }
+
+        @keyframes outleft {
+            0% {
+                left: 0%;
+                opacity: 1;
+            }
+
+            100% {
+                left: -100%;
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes outright {
+            0% {
+                left: 0%;
+                opacity: 1;
+            }
+
+            100% {
+                left: 100%;
+                opacity: 0.5;
+            }
+        }
+
+        @media screen and (orientation:portrait) {
+            #portrait {
+                display: block;
+            }
+
+            #landscape {
+                display: none;
+            }
+
+        }
+
+        @media screen and (orientation:landscape) {
+            #portrait {
+                display: none;
+            }
+
+            #landscape {
+                display: block;
+            }
+
+        }
+    </style>
+    <script src="https://raw.githack.com/HGustavs/Shaker.js/master/shaker.js"></script>
+    <script src="https://hammerjs.github.io/dist/hammer.js"></script>
+    <script>
+        state = 0;
+        var stepcounter = 0;
+        function showPage(p) {
+            // Step 1 - Hide all pages
+            pageArr = document.getElementsByClassName("page");
+
+            for (let i = 0; i < pageArr.length; i++) {
+                let page = pageArr[i];
+                page.style.display = "none";
+            }
+            // Step 2 - Show the selected page
+            document.getElementById("page" + p).style.display = "block";
+            state = p;
+
+            // Step 3 - Make buttons inactive
+            btnArr = document.getElementsByClassName("btn");
+            for (let i = 0; i < btnArr.length; i++) {
+                let btn = btnArr[i];
+                btn.classList.remove("active");
+            }
+            // Step 4 - Make page button active
+            let navBtn = document.getElementById("nav" + p);
+            if (navBtn) {
+                navBtn.classList.add("active");
+            }
+        }
+
+        function initPrototype() {
+            // For example, when using sound or sensors this becomes important.
+            console.log("==> Prototype init started.");
+        }
+        var numberOfSwipePages = 4;
+        var swipePage = 1;
+
+        function showSwipePageRight(newSwipePage) {
+            document.getElementById('swipe-page' + swipePage).style.animation = "outright 0.5s ease-in-out 0s 1 forwards";
+            document.getElementById('swipe-page' + newSwipePage).style.animation = "inleft 0.5s ease-in-out 0s 1 forwards";
+            swipePage = newSwipePage;
+        }
+        function showSwipePageLeft(newSwipePage) {
+            document.getElementById('swipe-page' + swipePage).style.animation = "outleft 0.5s ease-in-out 0s 1 forwards";
+            document.getElementById('swipe-page' + newSwipePage).style.animation = "inright 0.5s ease-in-out 0s 1 forwards";
+            swipePage = newSwipePage;
+        }
+
+        function swipe(direction) {
+            var newSwipePage = swipePage + direction;
+
+            // if we swipe beyond the first page, we go to last page instead.
+            if (newSwipePage == 0) {
+                newSwipePage = numberOfSwipePages;
+            }
+            // if we swipe beyond the last page, we go to first page instead.
+            else if (newSwipePage > numberOfSwipePages) {
+                newSwipePage = 1;
+            }
+
+            if (direction == 1) {
+                showSwipePageLeft(newSwipePage);
+            }
+            else {
+                showSwipePageRight(newSwipePage);
+            }
+        }
+
+        function swipeHammer() {
+            numberOfSwipePages = document.getElementsByClassName('swipe-page').length;
+            var element = document.getElementById("testswipe");
+            var hammertime = Hammer(element);
+            hammertime.on("swiperight", function (event) { swipe(-1) });
+            hammertime.on("swipeleft", function (event) { swipe(1) });
+        }
+
+        function step() {
+            if (state == 3) {
+                stepcounter += 1;
+
+                if (stepcounter == 5) {
+                    stepcounter = 0;
+                    var random = Math.floor(Math.random() * (10 - 7) + 7);
+                    console.log(random);
+                    showPage(random);
+                    document.getElementById("printout").innerHTML = 0;
+                }
+                else {
+                    document.getElementById("printout").innerHTML = stepcounter;
+                }
+            }
+        }
+        function initShaker() {
+            shaker.on("step", function (o) {
+                step();
+            });
+        }
+    </script>
+</head>
+
+<body onload="showPage(1); swipeHammer(); initPrototype(); initShaker();">
+<nav class="navbar navbar-expand-lg navbar-light Primary-color">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">FRAMED</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link active" data-bs-toggle="collapse"
+                                        data-bs-target="#navbarSupportedContent" aria-current="page" href="#"
+                                        onclick="showPage(1);">Home</a></li>
+                <li><a class="nav-link Secondary-color Nav-Margin-Top text-center" data-bs-toggle="collapse"
+                       data-bs-target="#navbarSupportedContent" href="#" onclick="showPage(1);">New motives</a>
+                </li>
+                <li><a class="nav-link Secondary-color Nav-Margin-Top text-center" data-bs-toggle="collapse"
+                       data-bs-target="#navbarSupportedContent" href="#" onclick="showPage(2);">Older items</a>
+                </li>
+                <li><a class="nav-link Secondary-color Nav-Margin-Top text-center" data-bs-toggle="collapse"
+                       data-bs-target="#navbarSupportedContent" href="#" onclick="showPage(3);">Random product page
+                    selector</a></li>
+                <li><a class="nav-link Secondary-color Nav-Margin-Top text-center" data-bs-toggle="collapse"
+                       data-bs-target="#navbarSupportedContent" href="#" onclick="showPage(6);">Links to the
+                    original work</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+
+<div id="page1" class="page page-background-color">
+    <div class="container">
+        <div id="portrait">
+            <h1 class="text-center Header-text">New Items! <span class="badge bg-secondary">New</span></h1>
+            <div class="card mx-auto cardmargin" style="width: 18rem;">
+                <img src="bilder/bird1.jpg" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Birds</h5>
+                    <p class="card-text">This is a lovely picture of two birds just chilling.</p>
+                    <a href="#" class="btn btn-dark Alt-color" onclick="showPage(7);">Show Product page</a>
+                </div>
+            </div>
+            <div class="card mx-auto cardmargin" style="width: 18rem;">
+                <img src="bilder/kek.jpg" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Kek</h5>
+                    <p class="card-text">If it is a cosy feeling you seek then look no further!</p>
+                    <a href="#" class="btn btn-dark Alt-color" onclick="showPage(8);">Show Product page</a>
+                </div>
+            </div>
+            <div class="card mx-auto cardmargin" style="width: 18rem;">
+                <img src="bilder/Outlook.jpg" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Outlook</h5>
+                    <p class="card-text">If you really like tropic islands then this motive just might be for you!
+                    </p>
+                    <a href="#" class="btn btn-dark Alt-color" onclick="showPage(9);">Show Product page</a>
+                </div>
+            </div>
+            <div class="card mx-auto cardmargin" style="width: 18rem;">
+                <img src="bilder/flygplan.jpg" class="card-img-top" alt="bild på fygplan">
+                <div class="card-body">
+                    <h5 class="card-title">Example motives</h5>
+                    <p class="card-text">If you want you can add more items here</p>
+                    <a href="#" class="btn btn-dark disabled Alt-color">Show Product page</a>
+                </div>
+            </div>
+            <div class="card mx-auto cardmargin" style="width: 18rem;">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Example motives</h5>
+                    <p class="card-text">If you want you can add more items here</p>
+                    <a href="#" class="btn btn-dark disabled Alt-color">Show Product page</a>
+                </div>
+            </div>
+
+        </div>
+        <div id="landscape">
+            <h1 class="text-center Header-text">New items!<span class="badge bg-secondary">POG</span></h1>
+            <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators botton-offset">
+                    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0"
+                            class="active" aria-current="true" aria-label="Slide 1"></button>
+                    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1"
+                            aria-label="Slide 2"></button>
+                    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2"
+                            aria-label="Slide 3"></button>
+                </div>
+                <div class="carousel-inner carousel-size">
+                    <div class="carousel-item active">
+                        <img src="bilder/bird1.jpg" class="d-block w-100" alt="...">
+                        <div class="carousel-caption">
+                            <a href="#" class="btn btn-dark Alt-color" onclick="showPage(7);">Birds</a>
+                            <p>Example of a motive that you can get framed!</p>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="bilder/kek.jpg" class="d-block w-100" alt="...">
+                        <div class="carousel-caption">
+                            <a href="#" class="btn btn-dark Alt-color" onclick="showPage(8);">Kek</a>
+                            <p>Example of a motive that you can get framed!</p>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="bilder/Outlook.jpg" class="d-block w-100" alt="...">
+                        <div class="carousel-caption">
+                            <a href="#" class="btn btn-dark Alt-color" onclick="showPage(9);">Outlook</a>
+                            <p>Example of a motive that you can get framed!</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions"
+                        data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions"
+                        data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<div id="page2" class="page page-background-color">
+    <div id="testswipe">
+        <div>
+            <h1 class="text-center Header-text">Swipe eft or right for different pictures!</h1>
+        </div>
+        <div id="swipe-page1" class="swipe-page page-background-color">
+            <div class="card mx-auto cardmargin" style="width: 18rem;">
+                <img src="bilder/bird1.jpg" class="card-img-top" alt="bird">
+                <div class="card-body">
+                    <h5 class="card-title">Birds</h5>
+                    <p class="card-text">Example of a motive to have framed</p>
+                    <a href="#" class="btn btn-dark Alt-color" onclick="showPage(7);">To Product Page</a>
+                </div>
+            </div>
+        </div>
+        <div id="swipe-page2" class="swipe-page page-background-color">
+            <div class="card mx-auto cardmargin" style="width: 18rem;">
+                <img src="bilder/kek.jpg" class="card-img-top" alt="berg">
+                <div class="card-body">
+                    <h5 class="card-title">Example pc</h5>
+                    <p class="card-text">Example of a motive to have framed</p>
+                    <a href="#" class="btn btn-dark Alt-color" onclick="showPage(8);">To Product Page</a>
+                </div>
+            </div>
+        </div>
+        <div id="swipe-page3" class="swipe-page page-background-color">
+            <div class="card mx-auto cardmargin" style="width: 18rem;">
+                <img src="bilder/Outlook.jpg" class="card-img-top" alt="outlook">
+                <div class="card-body">
+                    <h5 class="card-title">Outlook</h5>
+                    <p class="card-text">Example of a motive to have framed</p>
+                    <a href="#" class="btn btn-dark Alt-color" onclick="showPage(9);">To Product Page</a>
+                </div>
+            </div>
+        </div>
+        <div id="swipe-page4" class="swipe-page page-background-color">
+            <div class="card mx-auto cardmargin" style="width: 18rem;">
+                <img src="bilder/flygplan.jpg" class="card-img-top" alt="flygplan">
+                <div class="card-body">
+                    <h5 class="card-title">Plane</h5>
+                    <p class="card-text">Example of a motive to have framed</p>
+                    <a href="#" class="btn btn-dark ">To Product Page</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="page3" class="page page-background-color">
+    <h1 class="text-center Header-text">Shake the phone 5 times to see the motive for you!</h1>
+    <div id="printout" class="Header-text text-center">0</div>
+
+</div>
+<div id="page4" class="page page-background-color">
+
+</div>
+<div id="page5" class="page page-background-color">
+
+</div>
+<div id="page6" class="page page-background-color">
+    <h1 class="pagetitle Header-text text-center">This is where you can find information about the motives!</h1>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6 col-md-4 col-12">
+                <figure class="figure">
+                    <img src="bilder/bird1.jpg" class="figure-img img-fluid rounded" alt="fågel">
+                    <figcaption class="figure-caption">
+                        <a
+                                href="https://www.flickr.com/photos/philfiddyment/27703513814/in/photolist-Jd4KtU-HQEF93-Hhh59S-Jwt9no-Jd4JR1-Hhh5xN-HSGk8W-HbQbgQ-K4kJzK-JnqkP3-Ka8w22-28DyK3c-JZkA97-K6hXnQ-JR6rrw-HbQcBf-Ka8zbP-K7Rz2A-JKYVsb-K4kJkg-K6hWGS-JZkzmL-Jwt9fE-JLTu8M-2dYXs5y-K7RBhN-fphBc-29eciFU-RHBiqK-GpQPp8-HKhKwW-9zc1YM-dj7uDr-5QZq8i-26wvGWY-26D3wSB-82DW1M-cZt7PY-4vUmHF-JKYV7w-JR6pef-JoeFUW-Jd4Ln7-arHRmR-Jj5LKc-2bVjy3-Jd4Mxo-JGhpz9-JNZdcp-JnqorN">
+                            Birds by Phil Fiddyment</a>
+                        /<a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a>
+                    </figcaption>
+                </figure>
+            </div>
+            <div class="col-sm-6 col-md-4 col-12">
+                <figure class="figure">
+                    <img src="bilder/kek.jpg" class="figure-img img-fluid rounded" alt="bild på berg">
+                    <figcaption class="figure-caption">
+                        <a
+                                href="https://www.flickr.com/photos/nagy_pite/3094568920/in/photolist-5Hstwy-89kmRM-7o82ZN-DvUmQU-6QBd1d-xZMWCA-6CP31T-gFr2cG-2hHA7sF-7u83hy-7Kzq5U-7Kvtjr-7u49HV-5HstkG-zeYgHL-94gzof-2bxtZmJ-2bxtZVj-2bxtZGy-TomDiW-2bxu1D3-xZH5bG-7eGdJP-pVkCk6-29Es9FE-pVkCsk-yhp2UZ-ygu8dC-yhp1ic-xZTuxi-byqGLu-8wbVVC-xZLMUY-xR2Nu4-xkvxFZ-yhp26e-yf5vKE-yhp4Br-yi6gRH-4oz66W-yf5wef-yi6eV8-qh7em-xZTvrc-xZTvYV-yhp46X-yhp4sZ-yhp2Pt-xZTv6n-xkvxhc">
+                            kék av Péter Nagy</a>
+                        /<a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a>
+                    </figcaption>
+                </figure>
+            </div>
+            <div class="col-sm-6 col-md-4 col-12">
+                <figure class="figure">
+                    <img src="bilder/Outlook.jpg" class="figure-img img-fluid rounded" alt="outlook">
+                    <figcaption class="figure-caption">
+                        <a
+                                href="https://www.flickr.com/photos/3-bs/40904126143/in/photolist-25jykCc-2is6vps-LhauFA-totNWB-8iWAqm-FddAVu-e391nX-241NjeF-rpRR5W-5BYM1L-Ga3RNY-EymPDB-NjZSN-troBy-e1f5MP-3HeNJr-d5bQ1C-8iDNtn-8iH3Su-yDPMRs-8iDNsi-22UYqmw-2kbhrkC-2jzuxoM-26hc8Ci-kHScMn-3J3TAY-ebUpEj-7D3b5Q-2disqLv-qyXafa-sqvhMu-2iLa7ws-ebNKxe-oBZ6US-5iJcje-2iKivsY-ebNKx2-nhCNyj-4cPUnU-5ZyNnr-mvTLVF-bfMrH-937Ttu-8Kndp4-8GjdwD-ne3P9n-5zJ6pi-bPXNRH-F49dpo">
+                            Outlook av The 3B's</a>
+                        /<a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a>
+                    </figcaption>
+                </figure>
+            </div>
+            <div class="col-sm-6 col-md-4 col-12">
+                <figure class="figure">
+                    <img src="bilder/flygplan.jpg" class="figure-img img-fluid rounded" alt="flygplan">
+                    <figcaption class="figure-caption">
+                        <a
+                                href="https://www.flickr.com/photos/airlines470/49686408798/in/photolist-2iGBQhE-2i6up1A-Umgvwd-2i7VYGG-2i7VWYg-7XCcAA-VrnYgn-2i7VXv3-2i6qQQa-aLk8hv-UmgCnN-2i7VZ2u-bNZRVt-ekVmiJ-2i6qTdM-LV54AQ-2aFmhZB-7XCcDY-235a7ef-Kd3V4e-EK6RU-EuSFJV-7XCcCo-4mL1dJ-7XCczh-aLk8iX-aLk8gX-aLk7Pk-aLk7NF-aLk896-aLk7QB-aLk8jK-aLk7PX-aLk8ig-aLk7Ze-G25Hxd-aLk8d6-aLk84X-aLk7ZX-aLk7V4-aLk7VT-aLk7RK-2i6tkNE-aLk8c8-eJ7qKg-ecGTBR-LUZMkm-LpDCWz-2i6qQF2-7djy2a">
+                            ME262 EDTU USAF av ERIC SALARD</a>
+                        /<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>
+                    </figcaption>
+                </figure>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div id="page7" class="page page-background-color">
+    <h1 class="Header-text text-center">exempel produkt sida 1 BIRD</h1>
+    <div class="col-sm-6 col-md-4 col-12 mx-auto">
+        <figure class="figure">
+            <img src="bilder/bird1.jpg" class="figure-img img-fluid rounded" alt="fågel">
+            <figcaption class="figure-caption">
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Dolor mollitia nemo harum velit inventore dolores, minima incidunt quia sapiente perspiciatis quisquam. Inventore autem repudiandae nobis sapiente assumenda excepturi nemo ipsa.
+            </figcaption>
+        </figure>
+    </div>
+
+
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-dark Alt-color" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Buy this Motive!
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Sorry!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    This is only a prototype webbsite!
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dark Alt-color" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="page8" class="page page-background-color">
+    <h1 class="Header-text text-center">exempel produkt sida 2 KEK</h1>
+    <div class="col-sm-6 col-md-4 col-12 mx-auto">
+        <figure class="figure">
+            <img src="bilder/kek.jpg" class="figure-img img-fluid rounded" alt="bild på berg">
+            <figcaption class="figure-caption">
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eaque quaerat quos dicta incidunt assumenda ratione pariatur repellendus saepe. Amet ab odio eos enim vitae, vero explicabo voluptatem fugit eveniet esse!
+            </figcaption>
+        </figure>
+    </div>
+
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-dark Alt-color" data-bs-toggle="modal" data-bs-target="#exampleModal2">
+        Buy this Motive!
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel2">Sorry!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    This is only a prototype webbsite!
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dark Alt-color" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="page9" class="page page-background-color">
+    <h1 class="Header-text text-center">exempel produkt sida 3 OUTLOOK</h1>
+    <div class="col-sm-6 col-md-4 col-12">
+        <figure class="figure">
+            <img src="bilder/Outlook.jpg" class="figure-img img-fluid rounded" alt="outlook">
+            <figcaption class="figure-caption">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui rem aspernatur vel repudiandae voluptates autem, maxime impedit consequatur blanditiis sed cumque? Officia tenetur tempora accusantium dolore! Quis officia nemo illo!
+            </figcaption>
+        </figure>
+    </div>
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-dark Alt-color" data-bs-toggle="modal" data-bs-target="#exampleModal3">
+        Buy this Motive!
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal3" tabindex="-1" aria-labelledby="exampleModalLabel3" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel3">Sorry!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    This is only a prototype webbsite!
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dark Alt-color" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Optional JavaScript; choose one of the two! -->
+
+<!-- Option 1: Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+        crossorigin="anonymous"></script>
+
+<!-- Option 2: Separate Popper and Bootstrap JS -->
+<!--
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js" integrity="sha384-KsvD1yqQ1/1+IA7gi3P0tyJcT3vR+NdBTt13hSJ2lnve8agRGXTTyNaBYmCR/Nwi" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.min.js" integrity="sha384-nsg8ua9HAw1y0W1btsyWgBklPnCUAFLuTMS2G72MMONqmOymq585AcH49TLBQObG" crossorigin="anonymous"></script>
+-->
+</body>
+
+</html>
